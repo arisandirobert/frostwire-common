@@ -18,13 +18,14 @@
 package com.frostwire.search2;
 
 import com.frostwire.http.HttpClient;
+import com.frostwire.http.HttpClient.Params;
 import com.frostwire.http.Request;
 import com.frostwire.http.RequestListener;
 import com.frostwire.http.Response;
 import com.frostwire.util.ThreadPool;
 
 import java.io.IOException;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author gubatron
@@ -36,8 +37,8 @@ public final class SearchManager {
     private final HttpClient client;
 
     public SearchManager(int nThreads) {
-        this.pool = new ThreadPool("SearchManager", nThreads, nThreads, 1L, new PriorityBlockingQueue<Runnable>(), true);
-        this.client = HttpClient.with(new HttpClient.Params(pool));
+        this.pool = new ThreadPool("SearchManager", nThreads, nThreads, 1L, new LinkedBlockingQueue<Runnable>(), true);
+        this.client = HttpClient.with(new Params(pool));
     }
 
     public void execute(final SearchPerformer p) {
@@ -49,8 +50,24 @@ public final class SearchManager {
 
             @Override
             public void onResponse(Response response) throws IOException {
-                p.crawl(response.bytes());
+                handleResponse(response, p);
             }
         });
+    }
+
+    private void handleResponse(Response response, final SearchPerformer p) throws IOException {
+        for (Request r : p.level1(response.bytes())) {
+            client.send(r, new RequestListener() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+                    // do something here.
+                }
+
+                @Override
+                public void onResponse(Response response) throws IOException {
+                    p.level2(response.string());
+                }
+            });
+        }
     }
 }

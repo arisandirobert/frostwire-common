@@ -19,6 +19,8 @@ package com.frostwire.search2;
 
 import com.frostwire.http.Request;
 
+import java.util.List;
+
 /**
  * @author gubatron
  * @author aldenml
@@ -27,5 +29,7 @@ public interface SearchPerformer {
 
     Request request();
 
-    void crawl(byte[] data);
+    List<Request> level1(byte[] data);
+
+    List<SearchResult> level2(String data);
 }
