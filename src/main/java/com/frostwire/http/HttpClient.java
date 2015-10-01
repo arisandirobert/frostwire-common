@@ -64,7 +64,11 @@ public final class HttpClient {
             @Override
             public void onResponse(com.squareup.okhttp.Response r) throws IOException {
                 try {
-                    listener.onResponse(new Response(r));
+                    if (r != null) {
+                        listener.onResponse(new Response(r));
+                    } else {
+                        listener.onFailure(request, new IOException("response is null, review internal okhttp framework."));
+                    }
                 } catch (Throwable t) {
                     LOG.warn("Error invoking listener", t);
                 } finally {
