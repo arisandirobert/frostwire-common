@@ -19,7 +19,6 @@
 package com.frostwire.http;
 
 import com.frostwire.logging.Logger;
-import com.frostwire.util.ThreadPool;
 import com.frostwire.util.http.AllX509TrustManager;
 import com.frostwire.util.http.WrapSSLSocketFactory;
 import com.squareup.okhttp.*;
@@ -28,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import javax.net.ssl.*;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -146,10 +146,10 @@ public final class HttpClient {
 
     public static final class Params {
 
-        public Params(ThreadPool pool) {
+        public Params(ExecutorService pool) {
             this.pool = pool;
         }
 
-        public final ThreadPool pool;
+        public final ExecutorService pool;
     }
 }
