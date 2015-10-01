@@ -33,12 +33,13 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public final class SearchManager {
 
-    private final ThreadPool pool;
     private final HttpClient client;
 
     public SearchManager(int nThreads) {
-        this.pool = new ThreadPool("SearchManager", nThreads, nThreads, 1L, new LinkedBlockingQueue<Runnable>(), true);
-        this.client = HttpClient.with(new Params(pool));
+        Params p = new Params();
+        p.pool = new ThreadPool("SearchManager", nThreads, nThreads, 1L, new LinkedBlockingQueue<Runnable>(), true);
+
+        this.client = HttpClient.with(p);
     }
 
     public void execute(final SearchPerformer p) {

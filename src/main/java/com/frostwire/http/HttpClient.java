@@ -103,10 +103,12 @@ public final class HttpClient {
 
     private static OkHttpClient buildClient(Params params) {
         OkHttpClient c = Loader.DEFAULT_CLIENT.clone();
+        ExecutorService pool = params.pool != null ? params.pool : c.getDispatcher().getExecutorService();
 
-        if (params.pool != null) {
-            c.setDispatcher(new Dispatcher(params.pool));
-        }
+        Dispatcher d = new Dispatcher(pool);
+        d.setMaxRequests(params.maxRequests);
+        d.setMaxRequestsPerHost(params.maxRequestsPerHost);
+        c.setDispatcher(d);
 
         return c;
     }
@@ -150,10 +152,26 @@ public final class HttpClient {
 
     public static final class Params {
 
-        public Params(ExecutorService pool) {
-            this.pool = pool;
-        }
+        public ExecutorService pool;
 
-        public final ExecutorService pool;
+        /**
+         * Set the maximum number of requests to execute concurrently. Above this
+         * requests queue in memory, waiting for the running calls to complete.
+         * <p/>
+         * <p>If more than {@code maxRequests} requests are in flight when this is
+         * invoked, those requests will remain in flight.
+         */
+        public int maxRequests = 64;
+
+        /**
+         * Set the maximum number of requests for each host to execute concurrently.
+         * This limits requests by the URL's host name. Note that concurrent requests
+         * to a single IP address may still exceed this limit: multiple hostnames may
+         * share an IP address or be routed through the same HTTP proxy.
+         * <p/>
+         * <p>If more than {@code maxRequestsPerHost} requests are in flight when this
+         * is invoked, those requests will remain in flight.
+         */
+        public int maxRequestsPerHost = 5;
     }
 }
