@@ -38,27 +38,42 @@ public class SearchResult {
         this.map = map;
     }
 
+    public String string(String name) {
+        Object obj = map.get(name);
+        return obj instanceof String ? (String) obj : "";
+    }
+
+    public long integer(String name) {
+        Object obj = map.get(name);
+        return obj instanceof Number ? ((Number) obj).longValue() : 0;
+    }
+
+    public float decimal(String name) {
+        Object obj = map.get(name);
+        return obj instanceof Float || obj instanceof Double ? ((Number) obj).floatValue() : 0;
+    }
+
     public long uid() {
-        return (long) map.get(UID);
+        return integer(UID);
     }
 
     public String displayName() {
-        return (String) map.get(DISPLAY_NAME);
+        return string(DISPLAY_NAME);
     }
 
     public String detailsUrl() {
-        return (String) map.get(DETAILS_URL);
+        return string(DETAILS_URL);
     }
 
     public String thumbnailUrl() {
-        return (String) map.get(THUMBNAIL_URL);
+        return string(THUMBNAIL_URL);
     }
 
     public long creationTime() {
-        return (long) map.get(CREATION_TIME);
+        return integer(CREATION_TIME);
     }
 
     public String getSource() {
-        return (String) map.get(SOURCE);
+        return string(SOURCE);
     }
 }
