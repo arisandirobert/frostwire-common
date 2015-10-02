@@ -17,13 +17,13 @@
 
 package com.frostwire.search2;
 
-import java.util.Map;
+import com.frostwire.util.ArrayMap;
 
 /**
  * @author gubatron
  * @author aldenml
  */
-public class SearchResult {
+public final class SearchResult {
 
     public static final String UID = "uid";
     public static final String DISPLAY_NAME = "displayName";
@@ -32,25 +32,30 @@ public class SearchResult {
     public static final String CREATION_TIME = "creationTime";
     public static final String SOURCE = "source";
 
-    private final Map<String, Object> map;
+    private final ArrayMap<String, Value> map;
 
-    SearchResult(Map<String, Object> map) {
+    SearchResult(ArrayMap<String, Value> map) {
         this.map = map;
     }
 
     public String string(String name) {
-        Object obj = map.get(name);
-        return obj instanceof String ? (String) obj : "";
+        Value v = map.get(name);
+        return v != null ? v.string : null;
+    }
+
+    public boolean bool(String name) {
+        Value v = map.get(name);
+        return v != null ? v.bool : false;
     }
 
     public long integer(String name) {
-        Object obj = map.get(name);
-        return obj instanceof Number ? ((Number) obj).longValue() : 0;
+        Value v = map.get(name);
+        return v != null ? v.integer : 0;
     }
 
     public float decimal(String name) {
-        Object obj = map.get(name);
-        return obj instanceof Float || obj instanceof Double ? ((Number) obj).floatValue() : 0;
+        Value v = map.get(name);
+        return v != null ? v.decimal : 0;
     }
 
     public long uid() {
@@ -75,5 +80,36 @@ public class SearchResult {
 
     public String getSource() {
         return string(SOURCE);
+    }
+
+    private static final class Value {
+
+        private Value(String string, boolean bool, long integer, float decimal) {
+            this.string = string;
+            this.bool = bool;
+            this.integer = integer;
+            this.decimal = decimal;
+        }
+
+        public final String string;
+        public final boolean bool;
+        public final long integer;
+        public final float decimal;
+
+        public Value of(String value) {
+            return new Value(value, false, 0, 0);
+        }
+
+        public Value of(boolean value) {
+            return new Value(null, value, 0, 0);
+        }
+
+        public Value of(long value) {
+            return new Value(null, false, value, 0);
+        }
+
+        public Value of(float value) {
+            return new Value(null, false, 0, value);
+        }
     }
 }
